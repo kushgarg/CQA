@@ -17,8 +17,6 @@ import xml.etree.ElementTree as ET
 with open(file,'r') as xml_file:
     xml_file = ET.parse(xml_file)
 
-import linecache as lc
-
 '''fr = file.decode("utf-8").replace("<","")
 tree = ET.parse(fr)'''
 root = xml_file.getroot()
@@ -26,10 +24,8 @@ root = xml_file.getroot()
 ftext = open('data/train_1.txt', 'w')
 str1 = ""
 for child in root.findall('.//RelQBody'):
-    str1 = (str1 + str(child.text)  + '\n').replace("&lt;","").replace("p&gt;","").replace("/","").replace("&amp;","").replace("#160;","").replace("&quot;","").replace("&nbsp;","").replace("b&gt;","")
-    str2 = str1.replace('\n', '')
+    str1 = (str1 + str(child.text).replace('\n','') + '\n').replace("&lt;","").replace("p&gt;","").replace("/","").replace("&amp;","").replace("#160;","").replace("&quot;","").replace("&nbsp;","").replace("b&gt;","")
+
 ftext.write(str1)
 ftext.close()
 
-print lc.getline('data/train_1.txt', 4)
-print str2
