@@ -26,7 +26,7 @@ root = xml_file.getroot()
 ftext = open('data/train_1.txt', 'w')
 str1 = ""
 for child in root.findall('.//RelQBody'):
-    str1 = (str1 + str(child.text)).replace("&lt;","").replace("p&gt;","").replace("/","").replace("&amp;","").replace("#160;","").replace("&quot;","").replace("&nbsp;","").replace("b&gt;","")
+    str1 = (str1 + str(child.text)  + '\n').replace("&lt;","").replace("p&gt;","").replace("/","").replace("&amp;","").replace("#160;","").replace("&quot;","").replace("&nbsp;","").replace("b&gt;","")
     str2 = str1.replace('\n', '')
 ftext.write(str1)
 ftext.close()
