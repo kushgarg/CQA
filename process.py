@@ -19,8 +19,6 @@ import xml.etree.ElementTree as ET
 with open(file,'r') as xml_file:
     xml_file = ET.parse(xml_file)
 
-'''fr = file.decode("utf-8").replace("<","")
-tree = ET.parse(fr)'''
 root = xml_file.getroot()
 
 ftext = open('data/RelevantQues.txt', 'w')
