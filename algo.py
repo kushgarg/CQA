@@ -1,3 +1,6 @@
+from pyjarowinkler import distance
+import jellyfish
+
 def lcs(X, Y):
     # Find lengths of two strings
     m = len(X)
@@ -75,9 +78,14 @@ for i in range(0, 2):
         list2 = cm[k].split()
         words1 = set(list1)
         words2 = set(list2)
-        str2 = str2 + " " + rq[i]+ " " + cm[k] + " LCS :" + str(lcs(rq[i], cm[k])) + " Cosine :" + str(get_cosine(vector1, vector2)) + " Jaccard index:" + str(jaccard(words1,words2)) + '\n' + '\n'
+        str2 = str2 + " " + rq[i] + " " + cm[k] + " LCS :" + str(lcs(rq[i], cm[k])) + " Cosine :" + str(get_cosine(vector1, vector2)) + " Jaccard index:" + str(jaccard(words1,words2)) + " Jaro-winkler:"+ str(distance.get_jaro_distance(rq[i],cm[k] , winkler=True, scaling=0.1)) + " Damerau-Levenshtein:"+ str(jellyfish.damerau_levenshtein_distance(unicode(rq[i],'utf-8'),unicode(cm[k],'utf-8')))+'\n' + '\n'
 
 f.write(str2)
 f.close()
+
+
+
+
+
 
 
