@@ -28,9 +28,56 @@ def lcs(X, Y):
     return L[bi][n]
 
 
+import re, math
+from collections import Counter
+
+WORD = re.compile(r'\w+')
+
+
+def get_cosine(vec1, vec2):
+    intersection = set(vec1.keys()) & set(vec2.keys())
+    numerator = sum([vec1[x] * vec2[x] for x in intersection])
+
+    sum1 = sum([vec1[x] ** 2 for x in vec1.keys()])
+    sum2 = sum([vec2[x] ** 2 for x in vec2.keys()])
+    denominator = math.sqrt(sum1) * math.sqrt(sum2)
+
+    if not denominator:
+        return 0.0
+    else:
+        return float(numerator) / denominator
+
+
+def text_to_vector(text):
+    words = WORD.findall(text)
+    return Counter(words)
+
+
+def jaccard(a, b):
+    c = a.intersection(b)
+    return float(len(c)) / (len(a) + len(b) - len(c))
+
+
 fh = open('data/RelevantQues.txt', 'r')
 rq = fh.readlines()
 fh = open('data/Comments.txt', 'r')
 cm = fh.readlines()
 
-print lcs(rq[0], cm[0])
+f = open('data/output.txt','w')
+str2 = ""
+for i in range(0, 2):
+    for j in range(0, 10):
+        k = j + i * 10
+        vector1 = text_to_vector(rq[i])
+        vector2 = text_to_vector(cm[k])
+
+        list1 = rq[i].split()
+        list2 = cm[k].split()
+        words1 = set(list1)
+        words2 = set(list2)
+        str2 = str2 + " " + rq[i]+ " " + cm[k] + " LCS :" + str(lcs(rq[i], cm[k])) + " Cosine :" + str(get_cosine(vector1, vector2)) + " Jaccard index:" + str(jaccard(words1,words2)) + '\n' + '\n'
+
+f.write(str2)
+f.close()
+
+
