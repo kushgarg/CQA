@@ -1,5 +1,10 @@
 from pyjarowinkler import distance
+
 import jellyfish
+from nltk.corpus import stopwords
+stop_words = set(stopwords.words('english'))
+
+import xlwt
 
 def lcs(X, Y):
     # Find lengths of two strings
@@ -65,21 +70,61 @@ fh = open('data/RelevantQues.txt', 'r')
 rq = fh.readlines()
 fh = open('data/Comments.txt', 'r')
 cm = fh.readlines()
+fh = open('data/Labels_RelComm.txt', 'r')
+lb = fh.readlines()
 
 f = open('data/output.txt','w')
 str2 = ""
+
+book = xlwt.Workbook(encoding="utf-8")
+sheet = book.add_sheet("LABELS")
+
+sheet.write(0,0,"LCS")
+sheet.write(0,1,"Cosine-Similarity")
+sheet.write(0,2,"Jaccard-Index")
+sheet.write(0,3,"Jaro-Winkler")
+sheet.write(0,4,"Damareu-Levenshtein")
+sheet.write(0,5,"LABEL")
+
 for i in range(0, 2):
     for j in range(0, 10):
         k = j + i * 10
-        vector1 = text_to_vector(rq[i])
-        vector2 = text_to_vector(cm[k])
 
-        list1 = rq[i].split()
-        list2 = cm[k].split()
+        req = ""
+        com = ""
+
+        for r in rq[i].split():
+            if not r in stop_words:
+                req = req + r + " "
+
+        for r in cm[k].split():
+            if not r in stop_words:
+                com = com + r + " "
+        print req + '\n' + com + '\n'
+        vector1 = text_to_vector(req)
+        vector2 = text_to_vector(com)
+
+        list1 = req.split()
+        list2 = com.split()
         words1 = set(list1)
         words2 = set(list2)
-        str2 = str2 + " " + rq[i] + " " + cm[k] + " LCS :" + str(lcs(rq[i], cm[k])) + " Cosine :" + str(get_cosine(vector1, vector2)) + " Jaccard index:" + str(jaccard(words1,words2)) + " Jaro-winkler:"+ str(distance.get_jaro_distance(rq[i],cm[k] , winkler=True, scaling=0.1)) + " Damerau-Levenshtein:"+ str(jellyfish.damerau_levenshtein_distance(unicode(rq[i],'utf-8'),unicode(cm[k],'utf-8')))+'\n' + '\n'
 
+        lcs1 = str(lcs(req, com))
+        cos = str(get_cosine(vector1, vector2))
+        ji = str(jaccard(words1,words2))
+        jw = str(distance.get_jaro_distance(req,com , winkler=True, scaling=0.1))
+        dl = str(jellyfish.damerau_levenshtein_distance(unicode(req,'utf-8'),unicode(com,'utf-8')))
+
+        str2 = str2 + " " + rq[i] + " " + cm[k] + " LCS :" + lcs1 + " Cosine :" + cos + " Jaccard index:" + ji + " Jaro-winkler:"+ jw + " Damerau-Levenshtein:"+ dl + " RELEVANCE : " + lb[k] + '\n' +  '\n'
+
+        sheet.write(k + 1, 0,lcs1)
+        sheet.write(k + 1, 1, cos)
+        sheet.write(k + 1, 2, ji)
+        sheet.write(k + 1, 3, jw)
+        sheet.write(k + 1, 4, dl)
+        sheet.write(k + 1, 5, str(lb[k]))
+
+book.save("data/trial.xls")
 f.write(str2)
 f.close()
 
