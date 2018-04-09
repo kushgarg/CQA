@@ -1,8 +1,9 @@
 from pyjarowinkler import distance
-
+import ngram
 import jellyfish
 from nltk.corpus import stopwords
 stop_words = set(stopwords.words('english'))
+stop_words.remove("no")
 
 import xlwt
 
@@ -84,9 +85,10 @@ sheet.write(0,1,"Cosine-Similarity")
 sheet.write(0,2,"Jaccard-Index")
 sheet.write(0,3,"Jaro-Winkler")
 sheet.write(0,4,"Damareu-Levenshtein")
-sheet.write(0,5,"LABEL")
+sheet.write(0,5,"NGram")
+sheet.write(0,6,"class")
 
-for i in range(0, 2):
+for i in range(0, 1999):
     for j in range(0, 10):
         k = j + i * 10
 
@@ -100,6 +102,8 @@ for i in range(0, 2):
         for r in cm[k].split():
             if not r in stop_words:
                 com = com + r + " "
+
+        print str(k) + '\n'
         print req + '\n' + com + '\n'
         vector1 = text_to_vector(req)
         vector2 = text_to_vector(com)
@@ -114,15 +118,16 @@ for i in range(0, 2):
         ji = str(jaccard(words1,words2))
         jw = str(distance.get_jaro_distance(req,com , winkler=True, scaling=0.1))
         dl = str(jellyfish.damerau_levenshtein_distance(unicode(req,'utf-8'),unicode(com,'utf-8')))
-
-        str2 = str2 + " " + rq[i] + " " + cm[k] + " LCS :" + lcs1 + " Cosine :" + cos + " Jaccard index:" + ji + " Jaro-winkler:"+ jw + " Damerau-Levenshtein:"+ dl + " RELEVANCE : " + lb[k] + '\n' +  '\n'
+        ng = str(ngram.NGram.compare(req,com))
+        str2 = str2 + " " + rq[i] + " " + cm[k] + " LCS :" + lcs1 + " Cosine :" + cos + " Jaccard index:" + ji + " Jaro-winkler:"+ jw + " Damerau-Levenshtein:"+ dl + " NGram: " + ng + " RELEVANCE : " + lb[k] + '\n' +  '\n'
 
         sheet.write(k + 1, 0,lcs1)
         sheet.write(k + 1, 1, cos)
         sheet.write(k + 1, 2, ji)
         sheet.write(k + 1, 3, jw)
         sheet.write(k + 1, 4, dl)
-        sheet.write(k + 1, 5, str(lb[k]))
+        sheet.write(k + 1, 5, ng)
+        sheet.write(k + 1, 6, lb[k].replace('\n',''))
 
 book.save("data/trial.xls")
 f.write(str2)
