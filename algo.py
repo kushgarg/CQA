@@ -67,18 +67,18 @@ def jaccard(a, b):
     return float(len(c)) / (len(a) + len(b) - len(c))
 
 
-fh = open('data/RelevantQues.txt', 'r')
+fh = open('data/GOLD_RelevantQues.txt', 'r')
 rq = fh.readlines()
-fh = open('data/Comments.txt', 'r')
+fh = open('data/GOLD_Comments.txt', 'r')
 cm = fh.readlines()
-fh = open('data/Labels_RelComm.txt', 'r')
+fh = open('data/GOLD_Labels.txt', 'r')
 lb = fh.readlines()
 
-f = open('data/output.txt','w')
+f = open('data/GOLD_output.txt','w')
 str2 = ""
 
 book = xlwt.Workbook(encoding="utf-8")
-sheet = book.add_sheet("LABELS")
+sheet = book.add_sheet("LABELS_2")
 
 sheet.write(0,0,"LCS")
 sheet.write(0,1,"Cosine-Similarity")
@@ -88,7 +88,7 @@ sheet.write(0,4,"Damareu-Levenshtein")
 sheet.write(0,5,"NGram")
 sheet.write(0,6,"class")
 
-for i in range(0, 1999):
+for i in range(0, 327):
     for j in range(0, 10):
         k = j + i * 10
 
@@ -99,26 +99,38 @@ for i in range(0, 1999):
             if not r in stop_words:
                 req = req + r + " "
 
-        for r in cm[k].split():
-            if not r in stop_words:
-                com = com + r + " "
+        req = req.replace('"', '').replace('*', '').replace(';', '').replace('!','').replace(':','').replace(')','').replace('(','').replace('?','').replace('-','').replace('_','').replace('/','').replace('=','')
+
+        if k != 476 and k != 2548:
+            for r in cm[k].split():
+                if not r in stop_words:
+                    com = com + r + " "
+        else:
+            com = cm[k]
+
+        com = com.replace('"', '').replace('*', '').replace(';', '').replace('!','').replace(':','').replace(')','').replace('(','').replace('?','').replace('-','').replace('_','').replace('/','').replace('=','')
 
         print str(k) + '\n'
         print req + '\n' + com + '\n'
-        vector1 = text_to_vector(req)
-        vector2 = text_to_vector(com)
 
-        list1 = req.split()
-        list2 = com.split()
-        words1 = set(list1)
-        words2 = set(list2)
+        if com != "":
+            vector1 = text_to_vector(req)
+            vector2 = text_to_vector(com)
 
-        lcs1 = str(lcs(req, com))
-        cos = str(get_cosine(vector1, vector2))
-        ji = str(jaccard(words1,words2))
-        jw = str(distance.get_jaro_distance(req,com , winkler=True, scaling=0.1))
-        dl = str(jellyfish.damerau_levenshtein_distance(unicode(req,'utf-8'),unicode(com,'utf-8')))
-        ng = str(ngram.NGram.compare(req,com))
+            list1 = req.split()
+            list2 = com.split()
+            words1 = set(list1)
+            words2 = set(list2)
+
+            lcs1 = str(lcs(req, com))
+            cos = str(get_cosine(vector1, vector2))
+            ji = str(jaccard(words1,words2))
+            jw = str(distance.get_jaro_distance(req,com , winkler=True, scaling=0.1))
+            dl = str(jellyfish.damerau_levenshtein_distance(unicode(req,'utf-8'),unicode(com,'utf-8')))
+            ng = str(ngram.NGram.compare(req,com))
+        else:
+            lcs1 = cos = ji = jw = dl = ng = 0.0
+
         str2 = str2 + " " + rq[i] + " " + cm[k] + " LCS :" + lcs1 + " Cosine :" + cos + " Jaccard index:" + ji + " Jaro-winkler:"+ jw + " Damerau-Levenshtein:"+ dl + " NGram: " + ng + " RELEVANCE : " + lb[k] + '\n' +  '\n'
 
         sheet.write(k + 1, 0,lcs1)
@@ -129,7 +141,7 @@ for i in range(0, 1999):
         sheet.write(k + 1, 5, ng)
         sheet.write(k + 1, 6, lb[k].replace('\n',''))
 
-book.save("data/trial.xls")
+book.save("data/GOLD_trial.xls")
 f.write(str2)
 f.close()
 
