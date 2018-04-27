@@ -1,4 +1,4 @@
-from gensim.models import Word2Vec
+from gensim.models.keyedvectors import KeyedVectors
 import math
 from nltk.corpus import stopwords
 stop_words = set(stopwords.words('english'))
@@ -49,7 +49,7 @@ model = Word2Vec(list,min_count=1,size=100,workers=4)
 model.save('data/vectors_QC')
 '''
 
-model = Word2Vec.load('data/vectors_QC')
+model = KeyedVectors.load_word2vec_format('data/GoogleNews-vectors-negative300.bin',binary=True)
 
 fl = open('data/cs_sem.txt','w')
 
@@ -84,10 +84,10 @@ for i in range(0,2):
             if not t in stop_words:
                 qt.append(t)
 
-        qv = [0]*100
-        cv = [0]*100
+        qv = [0]*300
+        cv = [0]*300
 
-        for v in range(0,100):
+        for v in range(0,300):
             for q in qt:
                 try:
                     qv[v] = qv[v] + model[q][v]
@@ -95,7 +95,7 @@ for i in range(0,2):
                     qv[v] = qv[v] + 0
             qv[v] = qv[v]/(len(qt))
 
-        for v in range(0,100):
+        for v in range(0,300):
             for c in com:
                 try:
                     cv[v] = cv[v] + model[c][v]
@@ -103,10 +103,10 @@ for i in range(0,2):
                     cv[v] = cv[v] + 0.0
             cv[v] = cv[v]/(len(com))
 
-        numerator = sum([qv[x] * cv[x] for x in range(0,100)])
+        numerator = sum([qv[x] * cv[x] for x in range(0,300)])
 
-        sum1 = sum([qv[x] ** 2 for x in range(0,100)])
-        sum2 = sum([cv[x] ** 2 for x in range(0,100)])
+        sum1 = sum([qv[x] ** 2 for x in range(0,300)])
+        sum2 = sum([cv[x] ** 2 for x in range(0,300)])
         denominator = math.sqrt(sum1) * math.sqrt(sum2)
 
         if not denominator:
