@@ -25,37 +25,51 @@ import os
 java_path = "C:/Program Files/Java/jdk1.8.0_92/bin/java.exe"
 os.environ['JAVAHOME'] = java_path
 
-
 from nltk import sent_tokenize,word_tokenize
 from nltk.tag import StanfordNERTagger
 from nltk.tag.stanford import CoreNLPNERTagger
 
-text = """Yes. It is right behind Kahrama in the National area.
-whats the name of the shop?
-It's called Naseem Al-Nadir. Right next to the Smartlink shop. You'll find the chinese salesgirls at affordable prices there.
-dont want girls;want oil
-Try Both ;) I'am just trying to be helpful. On a serious note - Please go there. you'll find what you are looking for.
-you mean oil and filter both
-Yes Lawa...you couldn't be more right LOL
-What they offer?
-FU did u try with that salesgirl ?
-Swine - No I don't try with salesgirls. My taste is classy ;)
-Most massages in Qatar are a waste of money. All they do is just rub some oil. No body does deep tissue massage here.
-my masseuse is very good. calling her from to time for home service. currently in the philippines for a month vacation; i guess. =( she is the best in aromatherapy massage.
-there is a massage center near mall roundabout in hilal opp. to woqood petrol station
-Try Magic Touch in Abu Hamour (beside Abu Hamour Petrol Stn)it will just cost you 60QR per hour and I've seen a lot of Qataris as their customers.
-Can anybody recommend a good place for head massages? I am constantly getting migranes and would like a head massage after the medication has done its job as I am left very drained. Thank you :)
-call them they are good 44410410.
-Hi Roy; what place is the contact number for that you posted?"""
+sn_7class = StanfordNERTagger('stanford-ner-2018-02-27/classifiers/english.muc.7class.distsim.crf.ser.gz',path_to_jar='stanford-ner-2018-02-27/stanford-ner.jar',encoding='utf8')
 
-sentences = sent_tokenize(text)
-tokenized_sentences = [word_tokenize(sentence) for sentence in sentences]
+fh = open('data/RelevantQues.txt', 'r')
+rq = fh.readlines()
+fh = open('data/Comments.txt', 'r')
+cm = fh.readlines()
 
-print sentences
+for i in range(0,2):
+    for j in range(0,10):
+        k = j + i * 10
 
-sn_4class = StanfordNERTagger('stanford-ner-2018-02-27/classifiers/english.muc.7class.distsim.crf.ser.gz',path_to_jar='stanford-ner-2018-02-27/stanford-ner.jar',encoding='utf8')
-ne_annot_sent_4c = [sn_4class.tag(sent) for sent in tokenized_sentences]
+        cm[k] = cm[k].replace('"', '').replace('*', '').replace(';', '').replace('!', '').replace(':', '').replace(')','').replace('(', '').replace('?', '').replace('?', '').replace('_', '').replace('/', '').replace('=', '')
+        cm[k] = cm[k].replace('.', ' ')
 
-print ne_annot_sent_4c
+        rq[i] = rq[i].replace('"', '').replace('*', '').replace(';', '').replace('!', '').replace(':', '').replace(')','').replace('(', '').replace('?', '').replace('?', '').replace('_', '').replace('/', '').replace('=', '')
+        rq[i] = rq[i].replace('.', ' ')
+
+        tokens = cm[k].split(' ')
+        tokens = filter(None, tokens)
+
+        tokens1 = rq[i].split(' ')
+        tokens1 = filter(None, tokens1)
+
+        cner=[]
+        qner=[]
+
+        tup = sn_7class.tag(tokens)
+        for t in tup:
+            cner.append(t[1].encode("utf8"))
+
+        tup = sn_7class.tag(tokens1)
+        for t in tup:
+            qner.append(t[1].encode("utf8"))
+
+        cner = [x for x in cner if x!='O']
+        qner = [x for x in qner if x != 'O']
+        int = set(cner) & set(qner)
+
+        print(int)
+
+
+
 
 #print CoreNLPNERTagger(url='localhost:8080').tag('Rami Eid is studying at Stony Brook University in NY'.split())
