@@ -24,20 +24,32 @@ print tree
 import os
 java_path = "C:/Program Files/Java/jdk1.8.0_92/bin/java.exe"
 os.environ['JAVAHOME'] = java_path
-
+import xlwt
+import datetime
 from nltk import sent_tokenize,word_tokenize
 from nltk.tag import StanfordNERTagger
 from nltk.tag.stanford import CoreNLPNERTagger
 
 sn_7class = StanfordNERTagger('stanford-ner-2018-02-27/classifiers/english.muc.7class.distsim.crf.ser.gz',path_to_jar='stanford-ner-2018-02-27/stanford-ner.jar',encoding='utf8')
+#st = "Yes. It is right behind Kahrama in the National area."
+#tok = st.split(' ')
+#t = sn_7class.tag(tok)
+#print t
 
 fh = open('data/RelevantQues.txt', 'r')
 rq = fh.readlines()
 fh = open('data/Comments.txt', 'r')
 cm = fh.readlines()
 
-for i in range(0,2):
-    for j in range(0,10):
+book = xlwt.Workbook(encoding="utf-8")
+sheet = book.add_sheet("LABELS")
+
+#sheet.write(0,0,"named")
+
+time = datetime.datetime.now()
+
+for i in range(0,1):
+    for j in range(0,1):
         k = j + i * 10
 
         cm[k] = cm[k].replace('"', '').replace('*', '').replace(';', '').replace('!', '').replace(':', '').replace(')','').replace('(', '').replace('?', '').replace('?', '').replace('_', '').replace('/', '').replace('=', '')
@@ -62,14 +74,19 @@ for i in range(0,2):
         tup = sn_7class.tag(tokens1)
         for t in tup:
             qner.append(t[1].encode("utf8"))
-
+        print tokens1
+        print qner
+        print tokens
+        print cner
         cner = [x for x in cner if x!='O']
         qner = [x for x in qner if x != 'O']
         int = set(cner) & set(qner)
+        print int
+        print len(int)
+        #sheet.write(k + 1, 0, len(int))
 
-        print(int)
+#book.save('data/named1.xls')
 
-
-
+print datetime.datetime.now() - time
 
 #print CoreNLPNERTagger(url='localhost:8080').tag('Rami Eid is studying at Stony Brook University in NY'.split())

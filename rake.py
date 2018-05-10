@@ -62,4 +62,4 @@ text = "Compatibility of systems of linear constraints over the set of natural n
        "systems and systems of mixed types."
 
 rake = RAKE.Rake(RAKE.SmartStopList())
-filet.write(str(rake.run(cm,minCharacters=4,maxWords=5)).encode('utf-8'))
+filet.write(str(rake.run(text,minCharacters=3,maxWords=5)).encode('utf-8'))
